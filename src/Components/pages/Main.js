@@ -1,6 +1,8 @@
 import React from 'react';
 
 export default function Main() {
+  const cat = localStorage.getItem('userData');
+  console.log("localStorage",cat)
   return (
     <div>
    {/* This is an example component */}
@@ -31,6 +33,9 @@ export default function Main() {
             <h1 className="font-bold text-white text-2xl md:text-5xl leading-tight mb-4">
               WebTribe Intership Demo project
             </h1>
+             <p className="text-indigo-200 md:text-xl md:pr-48">
+            {/* Welcome {cat.data.firstName} {cat.data.lastName} */}
+            </p>
             <p className="text-indigo-200 md:text-xl md:pr-48">
               A sinple react js app build with Tailwind css
             </p>

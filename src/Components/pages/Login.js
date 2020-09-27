@@ -1,10 +1,18 @@
-import React from 'react';
+import React,  {useState} from 'react';
 import { useFormik} from 'formik';
+import axios from "axios";
+import Swal from 'sweetalert2'
+import { useHistory } from "react-router-dom";
 
  import * as Yup from 'yup';
 
  
 const  Login =() => {
+   const [serverState, setServerState] = useState();
+      const handleServerResponse = (ok, msg) => {
+        setServerState({ok, msg});
+      };
+const history = useHistory();
   const formik = useFormik({
 
      initialValues: {
@@ -19,16 +27,79 @@ const  Login =() => {
      }),
 
 
-     onSubmit: values => {
+     onSubmit: (values, actions) => {
 
-       alert(JSON.stringify(values, null, 2));
-
+      //  alert(JSON.stringify(values, null, 2));
+ axios({
+          method: "POST",
+          url: "https://hidden-everglades-98624.herokuapp.com/api/login",
+          headers: {
+             "Content-Type": "application/json"
+          },
+          data: values
+        })
+          .then(response => {
+            actions.setSubmitting(false);
+            actions.resetForm();
+            handleServerResponse(true, "Thanks!");
+            console.log("response",response)
+            if (response.data.message === 'Login Successful' ){ 
+              console.log("this is success",response.data.message)
+                 localStorage.setItem("userData",response.data)
+                 Swal.fire({
+            position: 'top-end',
+            icon: 'success',
+            title: `${response.data.message}`,
+            showConfirmButton: true,
+            // timer: 3000
+          })
+          
+          history.push("/");
+            }else if(response.data.message === 'Wrong Password') {
+              console.log("Wrong Password", response.data.message )
+               Swal.fire({
+              position: 'top-end',
+              icon: 'warning',
+              title: `${response.data.message}`,
+              showConfirmButton: true,
+              // timer: 3000
+            })
+            }else if(response.data.message === 'User does not exist'){
+                       Swal.fire({
+              position: 'top-end',
+              icon: 'warning',
+              title: `${response.data.message}`,
+              showConfirmButton: true,
+              // timer: 3000
+            })
+            }else {
+                     Swal.fire({
+              position: 'top-end',
+              icon: 'warning',
+              title: `Internal Server Error! Contact Admin`,
+              showConfirmButton: true,
+            })
+            }
+            
+          })
+          .catch(error => {
+            actions.setSubmitting(false);
+            handleServerResponse(false, error.Error);
+            console.log("===>",error)
+                   Swal.fire({
+              position: 'top-end',
+              icon: 'warning',
+              title: `${error.Error}`,
+              showConfirmButton: true,
+              // timer: 3000
+            })
+          });
      },
 
    });
   return (
     <div>
-    <div className="body-bg min-h-screen pt-12 md:pt-20 pb-6 px-2 md:px-0" style={{fontFamily: '"Lato",sans-serif'}}>
+    <div className="bg-indigo-900 min-h-screen pt-12 md:pt-20 pb-6 px-2 md:px-0" style={{fontFamily: '"Lato",sans-serif'}}>
   <header className="max-w-lg mx-auto">
     <a href="/">
       <h1 className="text-4xl font-bold text-white text-center">Web Tribe</h1>
@@ -40,7 +111,7 @@ const  Login =() => {
       <p className="text-gray-600 pt-2">Sign in to your account.</p>
     </section>
     <section className="mt-10">
-      <form className="flex flex-col" method="POST" action="#">
+      <form className="flex flex-col" onSubmit={formik.handleSubmit}  >
         <div className="mb-6 pt-3 rounded bg-gray-200">
           <label className="block text-gray-700 text-sm font-bold mb-2 ml-3" htmlFor="email">Email</label>
           <input type="text" id="email" name="email" className="bg-gray-200 rounded w-full text-gray-700 focus:outline-none border-b-4 border-gray-300 focus:border-purple-600 transition duration-500 px-3 pb-3"
@@ -48,7 +119,7 @@ const  Login =() => {
           
                />
                {formik.errors.email ? (
-                    <div>{formik.errors.email}</div>
+                    <div className="text-red-700">{formik.errors.email}</div>
                 ) : null}
         </div>
         <div className="mb-6 pt-3 rounded bg-gray-200">
@@ -57,19 +128,25 @@ const  Login =() => {
            {...formik.getFieldProps('password')}
                />
                {formik.touched.password && formik.errors.password ? (
-                    <div>{formik.errors.password}</div>
+                    <div className="text-red-700">{formik.errors.password}</div>
                 ) : null}
         </div>
-        <div className="flex justify-end">
-          <a href="/" className="text-sm text-purple-600 hover:text-purple-700 hover:underline mb-6">Forgot your password?</a>
+         <div className="flex justify-end">
+          <p className="text-sm text-purple-600 hover:text-purple-700 hover:underline mb-6">Don't have an account? <a href="/signup" className="font-bold hover:underline">Sign up</a>.</p>
         </div>
+        {/* <div className="flex justify-end">
+          <a href="/" className="text-sm text-purple-600 hover:text-purple-700 hover:underline mb-6">Forgot your password?</a>
+        </div> */}
         <button className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded shadow-lg hover:shadow-xl transition duration-200" type="submit">Sign In</button>
+            {serverState && (
+                  <p className={!serverState.ok ? "errorMsg" : ""}>
+                    {serverState.msg}
+                  </p>
+                )}
       </form>
     </section>
   </main>
-  <div className="max-w-lg mx-auto text-center mt-12 mb-6">
-    <p className="text-white">Don't have an account? <a href="/signup" className="font-bold hover:underline">Sign up</a>.</p>
-  </div>
+ 
   <footer className="max-w-lg mx-auto flex justify-center text-white">
     <a href="/" className="hover:underline">Contact</a>
     <span className="mx-3">•</span>
