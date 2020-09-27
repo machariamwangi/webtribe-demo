@@ -1,6 +1,31 @@
 import React from 'react';
+import { useFormik} from 'formik';
 
-export default function Login() {
+ import * as Yup from 'yup';
+
+ 
+const  Login =() => {
+  const formik = useFormik({
+
+     initialValues: {
+       email: '',
+       password: '',
+
+     },
+
+    validationSchema: Yup.object({
+       email: Yup.string().email('(Email address is invalid​)').required('(Email address is required​)'),
+       password: Yup.string().required('Password is required').required('Required'),
+     }),
+
+
+     onSubmit: values => {
+
+       alert(JSON.stringify(values, null, 2));
+
+     },
+
+   });
   return (
     <div>
     <div className="body-bg min-h-screen pt-12 md:pt-20 pb-6 px-2 md:px-0" style={{fontFamily: '"Lato",sans-serif'}}>
@@ -18,11 +43,22 @@ export default function Login() {
       <form className="flex flex-col" method="POST" action="#">
         <div className="mb-6 pt-3 rounded bg-gray-200">
           <label className="block text-gray-700 text-sm font-bold mb-2 ml-3" htmlFor="email">Email</label>
-          <input type="text" id="email" className="bg-gray-200 rounded w-full text-gray-700 focus:outline-none border-b-4 border-gray-300 focus:border-purple-600 transition duration-500 px-3 pb-3" />
+          <input type="text" id="email" name="email" className="bg-gray-200 rounded w-full text-gray-700 focus:outline-none border-b-4 border-gray-300 focus:border-purple-600 transition duration-500 px-3 pb-3"
+          {...formik.getFieldProps('email')}
+          
+               />
+               {formik.errors.email ? (
+                    <div>{formik.errors.email}</div>
+                ) : null}
         </div>
         <div className="mb-6 pt-3 rounded bg-gray-200">
           <label className="block text-gray-700 text-sm font-bold mb-2 ml-3" htmlFor="password">Password</label>
-          <input type="password" id="password" className="bg-gray-200 rounded w-full text-gray-700 focus:outline-none border-b-4 border-gray-300 focus:border-purple-600 transition duration-500 px-3 pb-3" />
+          <input type="password" id="password" name="password" className="bg-gray-200 rounded w-full text-gray-700 focus:outline-none border-b-4 border-gray-300 focus:border-purple-600 transition duration-500 px-3 pb-3" 
+           {...formik.getFieldProps('password')}
+               />
+               {formik.touched.password && formik.errors.password ? (
+                    <div>{formik.errors.password}</div>
+                ) : null}
         </div>
         <div className="flex justify-end">
           <a href="/" className="text-sm text-purple-600 hover:text-purple-700 hover:underline mb-6">Forgot your password?</a>
@@ -45,3 +81,4 @@ export default function Login() {
     </div>
   );
 }
+export default Login;
