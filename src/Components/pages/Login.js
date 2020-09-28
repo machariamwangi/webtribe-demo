@@ -45,7 +45,7 @@ const history = useHistory();
             console.log("response",response)
             if (response.data.message === 'Login Successful' ){ 
               console.log("this is success",response.data.message)
-                 localStorage.setItem("userData",response.data)
+                 sessionStorage.setItem("userData",JSON.stringify(response.data))
                  Swal.fire({
             position: 'top-end',
             icon: 'success',

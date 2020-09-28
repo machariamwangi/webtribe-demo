@@ -4,7 +4,7 @@ import {
   Switch,
   Route
 } from "react-router-dom";
-
+import ProtectedRoute from './Components/protectedRoutes/ProtectedRoute';
 import Login from  './Components/pages/Login';
 import Signup from './Components/pages/Signup';
 import Main from './Components/pages/Main';
@@ -17,9 +17,7 @@ function App() {
           <Route exact={true} path="/signup">
             <Signup />
           </Route>
-          <Route exact={true} path="/">
-            <Main />
-          </Route>
+          <ProtectedRoute exact={true} path="/" component={Main} />
           <Route exact={true} path="/login">
             <Login />
           </Route>
